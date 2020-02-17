@@ -24,13 +24,31 @@ app.get("/hello", (req, res) => {
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
+});
+
+app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
- });
+});
+
+app.get("/urls", (req, res) => {
+  let templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+/*    --- NOTES --- 
+
+<!-- This would display the string "Hello World!" -->
+<h1><%= greeting %></h1>
+
+<!-- This line will not show up on the page -->
+<% if(greeting) {%>
+  <!-- This line will only show if greeting is truthy -->
+  <h1><%= greeting %></h1>
+<% }%>
+
+
+*/
