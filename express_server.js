@@ -94,6 +94,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL
   console.log(urlDatabase, shortURL);
   delete urlDatabase[shortURL];
   res.redirect(`http://localhost:8080/urls`);
