@@ -22,11 +22,16 @@
       <div class="card-body">
         <h2 class="card-title">EDIT</h2>
         <p>
-          <form class='form-control form-control-lg' action="/urls" method="post" style="border:none"> 
+          <form 
+            class='form-control form-control-lg' 
+            action="/urls" 
+            method=POST  
+            style="border:none"
+            name=longURL> 
             <div class="input-group-text">
               <span class="input-group-text">New URL: </span>
               <input class=form-control type="text" placeholder=<%= longURL %>> 
-              <button class='btn btn-outline-info'>Edit</button>
+              <button class='btn btn-info'>Submit</button>
             </div>
           </form>
         </p>

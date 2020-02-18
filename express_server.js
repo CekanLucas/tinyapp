@@ -89,13 +89,24 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase);
-  res.redirect(`http://localhost:8080/urls/${shortURL}`);
+  console.log(req)
+  // console.log(urlDatabase);
+  res.redirect(`http://localhost:8080/urls`);
 });
+
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  console.log(shortURL)
+  urlDatabase[shortURL] = req.body.longURL;
+  res.render("urls_show", req.body.longURL)
+  console.log('Test',urlDatabase, shortURL, req.body.longURL);
+  // res.redirect(`http://localhost:8080/urls`);
+});
+
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
-  console.log(urlDatabase, shortURL);
+  // console.log(urlDatabase, shortURL);
   delete urlDatabase[shortURL];
   res.redirect(`http://localhost:8080/urls`);
 });
