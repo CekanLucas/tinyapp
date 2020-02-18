@@ -75,12 +75,22 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  let longURL =  urlDatabase[req.params.shortURL];
+  if(!longURL){
+    res.send(404,'Short URL does not lead to a site\n')
+  }
+  res.redirect(longURL);
+});
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); //Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const shortURL = generateRandomString()
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase);
+  res.redirect(`http://localhost:8080/urls/${shortURL}`);
 });
 
 app.listen(PORT, () => {
