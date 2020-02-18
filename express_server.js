@@ -93,6 +93,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`http://localhost:8080/urls/${shortURL}`);
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log(urlDatabase, shortURL);
+  delete urlDatabase[shortURL];
+  res.redirect(`http://localhost:8080/urls`);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
