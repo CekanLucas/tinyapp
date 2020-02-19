@@ -11,6 +11,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+
 function generateRandomString() {
   let charArray = [];
   
@@ -72,6 +86,22 @@ app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase, cookie};
   res.render("urls_index", templateVars);
 });
+
+app.get('/register', (req, res) => {
+  res.render('urls_form',users);
+  
+})
+
+app.post('/register', (req, res) => {
+  const randUserId = `${generateRandomString()}${generateRandomString()}`;
+  users[randUserId] = {
+    id: randUserId,
+    email: req.body.email, 
+    password: req.body.password
+  }
+  res.cookie('user_id', randUserId);
+  res.redirect('http://localhost:8080/urls')
+})
 
 app.post("/login", (req, res)=> {
   res.cookie('username',req.body.username); 
