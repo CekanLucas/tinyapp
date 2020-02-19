@@ -90,8 +90,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookie())
 
 app.post("/login", (req, res)=> {
-  const username = req.cookies(req.body.username)
-  console.log(username)
+  // set cookie username = name from input 
+  res.cookie('username',req.body.username); 
+  console.log(req.cookies)
+  app.render('urls_index', {'username' : req.req.body.username})
+  res.redirect('http://localhost:8080/urls')
 })
 
 app.post("/urls", (req, res) => {
