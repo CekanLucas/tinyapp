@@ -8,13 +8,12 @@
   <body>
     <%- include('./partials/_header') %>
   <div class="card text-center">
-    <%= shortURL %> 
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-title">TinyURL for: 
           <b><span class="text-info"><%= longURL %></span></b>
           </h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <p class="card-text">Short URL: <a href=<%= longURL %>><%= shortURL %></a></p>
       </div>
     <div class="card-footer text-muted"></div>
   </div>
@@ -36,7 +35,8 @@
                   New URL: 
                 </span>
                  </span>
-              <input class=form-control name=longURL type="text" value=<%= longURL %>  > 
+              <input class=form-control name=longURL type="text" 
+              value=<%= longURL || 'http://' %>  > 
               <button class='btn btn-info'>Submit</button>
             </div>
           </form>

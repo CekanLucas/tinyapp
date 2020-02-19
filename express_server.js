@@ -12,7 +12,7 @@ const urlDatabase = {
 };
 
 function generateRandomString() {
-  let charArray = []
+  let charArray = [];
   
   let i = 48 
   while(i < 58){ // generate digits
@@ -40,7 +40,8 @@ function generateRandomString() {
   return randStr;
 }
 
-app.get("/", (req, res) => {
+// --useless  code--
+/* app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
@@ -59,24 +60,44 @@ app.get("/set", (req, res) => {
 
 app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
-});
+}); */
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookie())
+
+// render templateVars to urls_index
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  const cookie = req.cookies.username
+  let templateVars = { urls: urlDatabase, cookie};
   res.render("urls_index", templateVars);
 });
 
+app.post("/login", (req, res)=> {
+  res.cookie('username',req.body.username); 
+  res.redirect('http://localhost:8080/urls')
+});
 
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
+  res.redirect(`http://localhost:8080/urls`);
+});
+
+// when you click urls new in header
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const shortURL = generateRandomString()
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`http://localhost:8080/urls/${shortURL}`);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-  // console.log(JSON.stringify(templateVars))
+  const cookie = req.cookies.username;
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie};
   res.render("urls_show", templateVars);
 });
 
+
+// redirect to longurl when you click short url
 app.get("/u/:shortURL", (req, res) => {
   let longURL =  urlDatabase[req.params.shortURL];
   if(!longURL){
@@ -85,38 +106,24 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookie())
-
-app.post("/login", (req, res)=> {
-  // set cookie username = name from input 
-  res.cookie('username',req.body.username); 
-  console.log(req.cookies)
-  app.render('urls_index', {'username' : req.req.body.username})
-  res.redirect('http://localhost:8080/urls')
-})
-
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
-  console.log(req.body)
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`http://localhost:8080/urls`);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  const longURL = req.body.longURL
-  console.log(longURL)
+  const longURL = req.body.longURL;
+  const cookie = req.cookies.username;
   urlDatabase[shortURL] = longURL;
-  console.log('Test',urlDatabase, shortURL, req.body.longURL);
-  res.render("urls_show",{longURL, shortURL})
+  res.render("urls_show",{longURL, shortURL, cookie})
 });
+
 
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
-  // console.log(urlDatabase, shortURL);
   delete urlDatabase[shortURL];
   res.redirect(`http://localhost:8080/urls`);
 });
@@ -124,17 +131,3 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-/*    --- NOTES --- 
-
-<!-- This would display the string "Hello World!" -->
-<h1><%= greeting %></h1>
-
-<!-- This line will not show up on the page -->
-<% if(greeting) {%>
-  <!-- This line will only show if greeting is truthy -->
-  <h1><%= greeting %></h1>
-<% }%>
-
-
-*/
