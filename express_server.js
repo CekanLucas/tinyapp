@@ -94,13 +94,29 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
-  users[randUserId] = {
-    id: randUserId,
-    email: req.body.email, 
-    password: req.body.password
+  console.log('registration handling')
+  for(id in users){
+    // console.log(users[id].email)
+    if(users[id].email === req.body.email) {
+      console.log('email already exists')
+      res.sendStatus(404);
+      // res.redirect('http://localhost:8080/register); 
+    }
   }
-  res.cookie('user_id', randUserId);
-  res.redirect('http://localhost:8080/urls')
+  if(!req.body.email || !req.body.password){
+    console.log('email or pass not filled ')
+    res.sendStatus(404);
+    res.redirect('http://localhost:8080/register');
+  }
+  else{
+    users[randUserId] = {
+      id: randUserId,
+      email: req.body.email, 
+      password: req.body.password
+    }
+    res.cookie('user_id', randUserId);
+    res.redirect('http://localhost:8080/urls')
+  }
 })
 
 app.post("/login", (req, res)=> {
