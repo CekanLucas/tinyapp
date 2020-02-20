@@ -83,7 +83,7 @@ app.use(cookie())
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.cookies.user_id;
-  let templateVars = { urls: urlDatabase, userID, users,};
+  let templateVars = { urls: urlDatabase, userID, users};
   // console.log(templateVars)
   
   res.render("urls_index", templateVars);
@@ -146,8 +146,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const userID = req.cookies.user_id;
   const cookie = req.cookies.userID;
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie, users, userID};
   res.render("urls_show", templateVars);
 });
 
