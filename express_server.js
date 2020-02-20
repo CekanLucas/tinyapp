@@ -70,9 +70,6 @@ const formHandling = (request, response) => {
   const pass     = request.cookies.pass_validated;
   const register = request.cookies.registration;
 
-  // console.log('Doing formHandling', request.cookies)
-  // console.log(email === false && pass === false)
-
   if(email === 'false' && pass === 'false'){ //State 1: ask for email
     for(id in users){
       // console.log(id, users)
@@ -89,8 +86,9 @@ const formHandling = (request, response) => {
 
   else if(email === 'true' && pass === 'false'){ //State 2: ask for password
     for(id in users){
-      if (request.body.loginPass === users[id]){
-        response.cookie('email_validated','true');
+      if (request.body.loginPass === users[id].password){
+        response.cookie('pass_validated','true');
+        return;
       }
     }
     response.status(401).send('invalid password');
