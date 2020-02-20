@@ -54,38 +54,79 @@ function generateRandomString() {
   return randStr;
 }
 
-// --useless  code--
-/* app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-}); */
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookie())
+app.use(cookie());
+
+const formHandling = (request, response) => {
+  // 2 paths login and registration 
+  // State 1: input: email button1: login  button2: register
+  // State 2: input: pass  button1: submit button2: back
+  // State 3: input: none  button1: logout button2: none
+
+  //using cookie value to determine state
+  const email    = request.cookies.email_validated;
+  const pass     = request.cookies.pass_validated;
+  const register = request.cookies.registration;
+
+  // console.log('Doing formHandling', request.cookies)
+  // console.log(email === false && pass === false)
+
+  if(email === 'false' && pass === 'false'){ //State 1: ask for email
+    for(id in users){
+      // console.log(id, users)
+      if (request.body.loginEmail === users[id].email){
+        response.cookie('user_id', id);
+        console.log(id + ' id')
+        response.cookie('email_validated','true');
+        return;
+      }
+    }
+    response.cookie('email_validated','false')
+    response.status(401).send('email is not registered');
+  }
+
+  else if(email === 'true' && pass === 'false'){ //State 2: ask for password
+    for(id in users){
+      if (request.body.loginPass === users[id]){
+        response.cookie('email_validated','true');
+      }
+    }
+    response.status(401).send('invalid password');
+  } else{return}
+}
+
+
+// -- Routing -- 
+
+//redirect to urls and set default cookies
+app.get("/", (req, res) => {
+  res.cookie('email_validated','false');
+  res.cookie('pass_validated','false');
+  res.cookie('registration','false');
+  res.redirect('http://localhost:8080/urls');
+})
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.cookies.user_id;
-  let templateVars = { urls: urlDatabase, userID, users};
-  // console.log(templateVars)
+  console.log(userID)
+  let templateVars = { urls: urlDatabase, userID, users, loginEmail:'', 
+  email_validated: false, 
+  pass_validated:  false, 
+  registration:    false,
+};
+
+// formHandling(req, res);
+console.log('test ', users[templateVars[userID]])
+
+// update templateVars with cookie values and change to boolean
+  templateVars.email_validated  = req.cookies.email_validated === 'true' ? true:false;
+  templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
+  templateVars.registration     = req.cookies.registration === 'true' ? true:false;
   
+  // console.log(templateVars)
   res.render("urls_index", templateVars);
 });
 
@@ -114,27 +155,43 @@ app.post('/register', (req, res) => {
       password: req.body.password
     }
     res.cookie('user_id', randUserId);
-    res.redirect('http://localhost:8080/urls')
+    res.redirect('http://localhost:8080/urls');
   }
 })
 
 app.post("/login", (req, res)=> { //WIP
-  const loginEmail = req.body.loginEmail
-  res.clearCookie('user_id');
-  for(id in users){
-    if(loginEmail === users[id].email){
-      res.cookie('user_id', id);
-    }
+  const loginEmail = req.body.loginEmail;
+  const loginPass  = req.body.loginPass;
+
+  // console.log('LE ',loginEmail === '')
+  // console.log('LP ',loginPass === undefined)
+
+  // handle empty login or password field
+  if(loginEmail === '' && loginPass === undefined){
+    res.status(403).send('Please fill out email field');
+    return;
   }
-  // console.log(users[req.cookies.user_id].email)
-  if(!req.cookies){
-    res.sendStatus(403);
-  }  
-  res.redirect('http://localhost:8080/urls')
+  if(loginEmail === undefined && loginPass === ''){
+    res.status(403).send('Please fill out password field');
+    return;
+  }
+  
+  formHandling(req, res);
+  
+  // if(req.cookies.email_validated !== 'true'){
+  //   res.status(403).send('User could not be found');
+  //   return;
+  // }
+console.log('redirecting '+req.cookies)
+res.redirect('http://localhost:8080/urls')
 });
 
+// go from state 3 to state 1
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
+  res.cookie('email_validated', false);
+  res.cookie('pass_validated', false);
+  res.cookie('registration', false);
   res.redirect(`http://localhost:8080/urls`);
 });
 
@@ -148,7 +205,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies.user_id;
   const cookie = req.cookies.userID;
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie, users, userID};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie, users, userID, validated:false};
   res.render("urls_show", templateVars);
 });
 
@@ -174,8 +231,6 @@ app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[shortURL] = longURL;
   res.render("urls_show",{longURL, shortURL, cookie})
 });
-
-
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL

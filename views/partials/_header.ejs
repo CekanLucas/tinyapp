@@ -12,26 +12,46 @@
     </div>
 
     
-    <% if(users[userID]){ %>
+    <% if(email_validated === true && pass_validated === true){ %>
 
-      Logged in as:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
+      Logged in for:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
       <form 
       class='form-control form-control-lg form-inline' 
       action="/logout" method=POST id=LoginForm 
       style="display:contents !important" name=usernameform> 
-        <button class='btn btn-warning'>Logout</button>
+        <button class='btn btn-warning'>Logout</button>req.cookies.LoginEmail
+    </form>
+
+    <% } else if(email_validated === false && pass_validated === false){ %>
+
+     Enter Email:&nbsp;<b><span class=text-light>&nbsp;&nbsp;&nbsp;</span</b>
+      <form 
+      class='form-control form-control-lg form-inline' 
+      action="/login" method=POST id=LoginForm 
+      style="display:contents !important" name=usernameform> 
+        <input class=form-control name=loginEmail type="email" placeholder="example@email.com"> 
+        <button class='btn btn-warning'>Login</button>
+        <button class='btn btn-warning'>Register</button>
     </form>
 
 
     <% } else{ %>  
 
+      Enter Password for&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
       <form 
       class='form-control form-control-lg form-inline' 
       action="/login" method=POST id=LoginForm 
       style="display:contents !important" name=usernameform> 
-        <input class=form-control name=loginEmail type="email"> 
-        <button class='btn btn-info'>Login</button>
-    </form>
+        <input class=form-control name=loginPass type="password" placeholder="enter password"> 
+        <button class='btn btn-warning'>Login</button>
+      </form>
+      <form 
+      class='form-control form-control-lg form-inline' 
+      action="/logout" method=POST
+      style="display:contents !important" name=backform> 
+      <button class='btn btn-warning'>Back</button>
+      </form>
+    
 
    <% } %>
 
