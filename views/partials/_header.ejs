@@ -12,9 +12,9 @@
     </div>
 
     
-    <% if(cookie){ %>
+    <% if(users[userID]){ %>
 
-      Logged in as:&nbsp;<b><span class=text-light><%= cookie %>&nbsp;&nbsp;&nbsp;</span</b>
+      Logged in as:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
       <form 
       class='form-control form-control-lg form-inline' 
       action="/logout" method=POST id=LoginForm 
@@ -29,7 +29,7 @@
       class='form-control form-control-lg form-inline' 
       action="/login" method=POST id=LoginForm 
       style="display:contents !important" name=usernameform> 
-        <input class=form-control name=username type="text"> 
+        <input class=form-control name=loginEmail type="email"> 
         <button class='btn btn-info'>Login</button>
     </form>
 

@@ -82,25 +82,24 @@ app.use(cookie())
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
-  const cookie = req.cookies.username
-  let templateVars = { urls: urlDatabase, cookie};
+  const userID = req.cookies.user_id;
+  let templateVars = { urls: urlDatabase, userID, users,};
+  // console.log(templateVars)
+  
   res.render("urls_index", templateVars);
 });
 
 app.get('/register', (req, res) => {
   res.render('urls_form',users);
-  
 })
 
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
   console.log('registration handling')
   for(id in users){
-    // console.log(users[id].email)
     if(users[id].email === req.body.email) {
       console.log('email already exists')
       res.sendStatus(404);
-      // res.redirect('http://localhost:8080/register); 
     }
   }
   if(!req.body.email || !req.body.password){
@@ -119,13 +118,19 @@ app.post('/register', (req, res) => {
   }
 })
 
-app.post("/login", (req, res)=> {
-  res.cookie('username',req.body.username); 
+app.post("/login", (req, res)=> { //WIP
+  // const currentUser = req.cookies.user_id;
+  const loginEmail = req.body.loginEmail
+  for(id in users){
+    if(loginEmail === users[id].email){
+      res.cookie('user_id', id);
+    }
+  }
   res.redirect('http://localhost:8080/urls')
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect(`http://localhost:8080/urls`);
 });
 
@@ -141,7 +146,6 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie};
   res.render("urls_show", templateVars);
 });
-
 
 // redirect to longurl when you click short url
 app.get("/u/:shortURL", (req, res) => {
