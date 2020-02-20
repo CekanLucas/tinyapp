@@ -119,13 +119,17 @@ app.post('/register', (req, res) => {
 })
 
 app.post("/login", (req, res)=> { //WIP
-  // const currentUser = req.cookies.user_id;
   const loginEmail = req.body.loginEmail
+  res.clearCookie('user_id');
   for(id in users){
     if(loginEmail === users[id].email){
       res.cookie('user_id', id);
     }
   }
+  // console.log(users[req.cookies.user_id].email)
+  if(!req.cookies){
+    res.sendStatus(403);
+  }  
   res.redirect('http://localhost:8080/urls')
 });
 
@@ -142,7 +146,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const cookie = req.cookies.username;
+  const cookie = req.cookies.userID;
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie};
   res.render("urls_show", templateVars);
 });
@@ -165,7 +169,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL;
-  const cookie = req.cookies.username;
+  const cookie = req.cookies.user_id;
   urlDatabase[shortURL] = longURL;
   res.render("urls_show",{longURL, shortURL, cookie})
 });
