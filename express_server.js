@@ -197,13 +197,26 @@ app.post("/logout", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`http://localhost:8080/urls/${shortURL}`);
+  
+  if(
+    req.cookies.email_validated === 'true' && 
+    req.cookies.pass_validated  === 'true'){
+    res.redirect(`http://localhost:8080/urls/${shortURL}`);
+  }
+  else{ res.status(401).send('Please register and/or login to create short urls')}
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies.user_id;
   const cookie = req.cookies.userID;
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie, users, userID, validated:false};
+
+  // update templateVars with cookie values and change to boolean
+  templateVars.email_validated  = req.cookies.email_validated === 'true' ? true:false;
+  templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
+  templateVars.registration     = req.cookies.registration === 'true' ? true:false;
+
+  console.log(templateVars)
   res.render("urls_show", templateVars);
 });
 
