@@ -9,8 +9,10 @@ const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" },
+  b2xVn2:  { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK":  { longURL: "http://www.google.com", userID: "user2RandomID" },
 };
 
 const users = { 
@@ -29,43 +31,6 @@ const users = {
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookie());
-
-/* const formHandling = (request, response) => {
-  // 2 paths login and registration 
-  // State 1: input: email button1: login  button2: register
-  // State 2: input: pass  button1: submit button2: back
-  // State 3: input: none  button1: logout button2: none
-
-  //using cookie value to determine state
-  const email    = request.cookies.email_validated;
-  const pass     = request.cookies.pass_validated;
-  const register = request.cookies.registration;
-
-  if(email === 'false' && pass === 'false'){ //State 1: ask for email
-    for(id in users){
-      // console.log(id, users)
-      if (request.body.loginEmail === users[id].email){
-        response.cookie('user_id', id);
-        console.log(id + ' id')
-        response.cookie('email_validated','true');
-        return;
-      }
-    }
-    response.cookie('email_validated','false')
-    response.status(401).send('email is not registered');
-  }
-
-  else if(email === 'true' && pass === 'false'){ //State 2: ask for password
-    for(id in users){
-      if (request.body.loginPass === users[id].password){
-        response.cookie('pass_validated','true');
-        return;
-      }
-    }
-    response.status(401).send('invalid password');
-  } else{return}
-} */
-
 
 // -- Routing -- 
 
@@ -174,7 +139,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies.user_id;
   const cookie = req.cookies.userID;
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], cookie, users, userID, validated:false};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, cookie, users, userID, validated:false};
 
   // update templateVars with cookie values and change to boolean
   templateVars.email_validated  = req.cookies.email_validated === 'true' ? true:false;
@@ -195,7 +160,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // redirect to longurl when you click short url
 app.get("/u/:shortURL", (req, res) => {
-  let longURL =  urlDatabase[req.params.shortURL];
+  let longURL =  urlDatabase[req.params.shortURL].longURL;
   if(!longURL){
     res.send(404,'Short URL does not lead to a site\n')
   }
