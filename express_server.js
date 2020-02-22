@@ -124,7 +124,7 @@ console.log('test ', users[templateVars[userID]])
   templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
   templateVars.registration     = req.cookies.registration === 'true' ? true:false;
   
-  // console.log(templateVars)
+  console.log(templateVars.userID)
   res.render("urls_index", templateVars);
 });
 
@@ -152,6 +152,7 @@ app.post('/register', (req, res) => {
       email: req.body.email, 
       password: req.body.password
     }
+    console.log(users)
     res.cookie('user_id', randUserId);
     res.redirect('http://localhost:8080/urls');
   }
@@ -216,7 +217,8 @@ app.get("/urls/:shortURL", (req, res) => {
   templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
   templateVars.registration     = req.cookies.registration === 'true' ? true:false;
 
-  console.log(templateVars)
+  // logged in user not found
+  console.log('TESTING ',templateVars.email_validated, users[userID], users)
   res.render("urls_show", templateVars);
 });
 
@@ -230,17 +232,23 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  console.log(req.cookies)
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`http://localhost:8080/urls`);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
+  const userID = req.cookies.user_id;
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL;
-  const cookie = req.cookies.user_id;
-  urlDatabase[shortURL] = longURL;
-  res.render("urls_show",{longURL, shortURL, cookie})
+  const email_validated = req.cookies.pass_validated === 'true' ? true:false;
+  const pass_validated =  req.cookies.email_validated === 'true' ? true:false;
+  const templateVars =
+  {longURL, shortURL, email_validated, pass_validated, userID, users};
+  urlDatabase[shortURL] ={ longURL, userID };
+
+  res.render("urls_show",templateVars)
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -250,5 +258,5 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Listening on port ${PORT}!`);
 });
