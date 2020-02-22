@@ -45,15 +45,21 @@ app.get("/", (req, res) => {
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.cookies.user_id;
-  console.log(userID)
-  let templateVars = { urls: urlDatabase, userID, users, loginEmail:'', 
+
+  let URL = urlDatabase;
+  for(let url in URL){
+    console.log(url)
+    if( URL[url].userID !== userID ){
+      console.log('DELETE '+url)
+      delete URL[url];
+    }
+  }
+  console.log(URL)
+  let templateVars = { urls:URL, userID, users, loginEmail:'', 
   email_validated: false, 
   pass_validated:  false, 
   registration:    false,
 };
-
-// formHandling(req, res);
-console.log('test ', users[templateVars[userID]])
 
 // update templateVars with cookie values and change to boolean
   templateVars.email_validated= req.cookies.email_validated === 'true' ? true:false;
