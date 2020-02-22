@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const cookie = require('cookie-parser')
+const {generateRandomString} = require('./functions/generateRandomString');
+const {formHandling} = require('./functions/formHandling');
 
 const PORT = 8080; // default port 8080
 
@@ -24,42 +26,11 @@ const users = {
   }
 }
 
-
-function generateRandomString() {
-  let charArray = [];
-  
-  let i = 48 
-  while(i < 58){ // generate digits
-    charArray.push(String.fromCharCode(i));
-    i++;
-  }
-  i = 65;
-  while(i < 91){ // generate uppercase
-    charArray.push(String.fromCharCode(i));
-    i++;
-  }
-  i = 97;
-  while(i < 123){ // generate lowercase
-    charArray.push(String.fromCharCode(i));
-    i++;
-  }
-  
-  i = 0 
-  let randStr = ''
-  while(i < 6){
-    //charArray.length is 62
-    randStr += charArray[Math.floor(Math.random() * 62)];
-    i++;
-  }
-  return randStr;
-}
-
-
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookie());
 
-const formHandling = (request, response) => {
+/* const formHandling = (request, response) => {
   // 2 paths login and registration 
   // State 1: input: email button1: login  button2: register
   // State 2: input: pass  button1: submit button2: back
@@ -93,7 +64,7 @@ const formHandling = (request, response) => {
     }
     response.status(401).send('invalid password');
   } else{return}
-}
+} */
 
 
 // -- Routing -- 
@@ -120,11 +91,11 @@ app.get("/urls", (req, res) => {
 console.log('test ', users[templateVars[userID]])
 
 // update templateVars with cookie values and change to boolean
-  templateVars.email_validated  = req.cookies.email_validated === 'true' ? true:false;
-  templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
-  templateVars.registration     = req.cookies.registration === 'true' ? true:false;
+  templateVars.email_validated= req.cookies.email_validated === 'true' ? true:false;
+  templateVars.pass_validated = req.cookies.pass_validated === 'true' ? true:false;
+  templateVars.registration   = req.cookies.registration === 'true' ? true:false;
   
-  console.log(templateVars.userID)
+  // console.log(templateVars.userID)
   res.render("urls_index", templateVars);
 });
 
@@ -176,13 +147,6 @@ app.post("/login", (req, res)=> { //WIP
   }
   
   formHandling(req, res);
-  
-  // if(req.cookies.email_validated !== 'true'){
-  //   res.status(403).send('User could not be found');
-  //   return;
-  // }
-console.log('redirecting '+req.cookies)
-res.redirect('http://localhost:8080/urls')
 });
 
 // go from state 3 to state 1
@@ -266,3 +230,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}!`);
 });
+
+module.exports = {
+  users,
+  urlDatabase
+}
