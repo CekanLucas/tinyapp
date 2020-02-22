@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const cookie = require('cookie-parser')
+const cookie = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const {generateRandomString} = require('./functions/generateRandomString');
 const {formHandling} = require('./functions/formHandling');
 
@@ -56,10 +57,8 @@ app.get("/urls", (req, res) => {
     }
   }
   // console.log(URL, users)
-  let templateVars = { urls:URL, userID:req.cookies.user_id, users, loginEmail:'', 
-    email_validated,
-    pass_validated ,
-    registration   
+  let templateVars = { urls:URL, userID, users, loginEmail:'', 
+    email_validated, pass_validated, registration   
 };
 
   
@@ -86,10 +85,12 @@ app.post('/register', (req, res) => {
     res.redirect('http://localhost:8080/register');
   }
   else{
+    const password = req.body.password;
+    const hash = bcrypt.hashSync(password, 10);
     users[randUserId] = {
       id: randUserId,
       email: req.body.email, 
-      password: req.body.password
+      hash
     }
     console.log(users)
     res.cookie('user_id', randUserId);

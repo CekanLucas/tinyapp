@@ -1,6 +1,7 @@
 
 const formHandling = (request, response) => {
   const {users, urlDatabase} = require('../express_server');
+  const bcrypt = require('bcrypt');
   // console.log('users: '+users);
   // 2 paths login and registration 
   // State 1: input: email button1: login  button2: register
@@ -28,11 +29,10 @@ const formHandling = (request, response) => {
   }
 
   else if(email === 'true' && pass === 'false'){ //State 2: ask for password
-    for(id in users){
-      if (request.body.loginPass === users[id].password){
-        response.cookie('pass_validated','true');
-        response.redirect('http://localhost:8080/urls')
-      }
+    const id     = request.cookies.user_id;
+    if (bcrypt.compareSync(request.body.loginPass, users[id].hash)){
+      response.cookie('pass_validated','true');
+      response.redirect('http://localhost:8080/urls')
     }
     response.status(401).send('invalid password');
   } else{response.redirect('http://localhost:8080/urls')}
