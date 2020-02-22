@@ -16,16 +16,20 @@ const urlDatabase = {
   "9sm5xK":  { longURL: "http://www.google.com", userID: "user2RandomID" },
 };
 
+//add hashable passwords
+const hash1 = bcrypt.hashSync("example", 10)
+const hash2 = bcrypt.hashSync("abc", 10)
+
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "example"
+    hash: hash1
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "abc"
+    hash: hash2
   }
 }
 
@@ -40,6 +44,7 @@ app.get("/", (req, res) => {
   res.cookie('email_validated','false');
   res.cookie('pass_validated','false');
   res.cookie('registration','false');
+  res.clearCookie('user_id');
   res.redirect('http://localhost:8080/urls');
 })
 
