@@ -15,12 +15,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "example"
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "abc"
   }
 }
 
@@ -217,8 +217,15 @@ app.get("/urls/:shortURL", (req, res) => {
   templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
   templateVars.registration     = req.cookies.registration === 'true' ? true:false;
 
+  if(!templateVars.email_validated || !templateVars.pass_validated || 
+     templateVars.email_validated === false || templateVars.pass_validated === false){
+    console.log('non logged in users cant exit');
+    res.send(401, 'Only logged in users can edit');
+    res.redirect('/urls');
+    return;
+  }
   // logged in user not found
-  console.log('TESTING ',templateVars.email_validated, users[userID], users)
+  // console.log('TESTING ',templateVars.email_validated, users[userID], users)
   res.render("urls_show", templateVars);
 });
 
@@ -247,7 +254,6 @@ app.post("/urls/:shortURL", (req, res) => {
   const templateVars =
   {longURL, shortURL, email_validated, pass_validated, userID, users};
   urlDatabase[shortURL] ={ longURL, userID };
-
   res.render("urls_show",templateVars)
 });
 
