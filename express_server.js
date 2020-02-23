@@ -135,8 +135,10 @@ app.post("/logout", (req, res) => {
 
 // when you click urls new in header
 app.get("/urls/new", (req, res) => {
-  const shortURL = generateRandomString()
-  urlDatabase[shortURL] = req.body.longURL;
+  const shortURL = generateRandomString();
+  const userID = req.session.user_id;
+  const longURL = req.body.longURL
+  urlDatabase[shortURL] = {userID, longURL};
   
   if(
     req.session.email_validated === 'true' && 
