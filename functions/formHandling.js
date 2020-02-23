@@ -9,32 +9,32 @@ const formHandling = (request, response) => {
   // State 3: input: none  button1: logout button2: none
 
   //using cookie value to determine state
-  const email    = request.cookies.email_validated;
-  const pass     = request.cookies.pass_validated;
-  const register = request.cookies.registration;
-  // console.log('Users:\t'+users)
-  console.log('cookies;\t'+email,pass)
-  if(email === 'false' && pass === 'false'){ //State 1: ask for email
+  const email    = request.session.email_validated;
+  const pass     = request.session.pass_validated;
+  const register = request.session.registration;
+  
+  //State 1: ask for email
+  if(JSON.parse(email) === false && JSON.parse(pass) === false){ 
     for(id in users){
-      console.log(id, users[id].email)
       if (request.body.loginEmail === users[id].email){
-        response.cookie('user_id', id);
-        console.log(id + ' id')
-        response.cookie('email_validated','true');
+        request.session.user_id = id;
+        request.session.email_validated = 'true';
         response.redirect('http://localhost:8080/urls')
+        return;
       }
     }
-    response.cookie('email_validated','false')
-    response.status(401).send('email is not registered');
+    response.status(401).send('Email is not registered');
+    response.redirect('http://localhost:8080/urls');
+    return;
   }
 
   else if(email === 'true' && pass === 'false'){ //State 2: ask for password
-    const id     = request.cookies.user_id;
+    const id = request.session.user_id;
     if (bcrypt.compareSync(request.body.loginPass, users[id].hash)){
-      response.cookie('pass_validated','true');
+      request.session.pass_validated = 'true';
       response.redirect('http://localhost:8080/urls')
     }
-    response.status(401).send('invalid password');
+    else{response.status(401).send('invalid password')};
   } else{response.redirect('http://localhost:8080/urls')}
 }
 

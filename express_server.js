@@ -1,11 +1,10 @@
+const session = require('cookie-session');
 const express = require("express");
 const app = express();
-const cookie = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const {generateRandomString} = require('./functions/generateRandomString');
 const {formHandling} = require('./functions/formHandling');
-
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 app.set('view engine', 'ejs');
 
@@ -35,25 +34,29 @@ const users = {
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookie());
+app.use(session({
+  name: 'session',
+  secret: 'secret key',
+}));
 
 // -- Routing -- 
 
 //redirect to urls and set default cookies
 app.get("/", (req, res) => {
-  res.cookie('email_validated','false');
-  res.cookie('pass_validated','false');
-  res.cookie('registration','false');
-  res.clearCookie('user_id');
+  req.session.email_validated = 'false';
+  req.session.pass_validated = 'false';
+  req.session.registration = 'false';
+  res.user_id = null;
   res.redirect('http://localhost:8080/urls');
 })
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
-  const userID = req.cookies.user_id;
-  const email_validated= req.cookies.email_validated === 'true' ? true:false;
-  const pass_validated = req.cookies.pass_validated === 'true' ? true:false;
-  const registration   = req.cookies.registration === 'true' ? true:false;
+  // console.log(req.session.user_id)
+  const userID = req.session.user_id;
+  const email_validated= req.session.email_validated === 'true' ? true:false;
+  const pass_validated = req.session.pass_validated === 'true' ? true:false;
+  const registration   = req.session.registration === 'true' ? true:false;
 
   let URL = urlDatabase;
   for(let url in URL){
@@ -98,19 +101,15 @@ app.post('/register', (req, res) => {
       hash
     }
     console.log(users)
-    res.cookie('user_id', randUserId);
+    req.session.user_id = randUserId;
     res.redirect('http://localhost:8080/urls');
   }
 })
 
-app.post("/login", (req, res)=> { //WIP
+app.post("/login", (req, res)=> { 
   const loginEmail = req.body.loginEmail;
   const loginPass  = req.body.loginPass;
 
-  // console.log('LE ',loginEmail === '')
-  // console.log('LP ',loginPass === undefined)
-
-  // handle empty login or password field
   if(loginEmail === '' && loginPass === undefined){
     res.status(403).send('Please fill out email field');
     return;
@@ -119,16 +118,15 @@ app.post("/login", (req, res)=> { //WIP
     res.status(403).send('Please fill out password field');
     return;
   }
-  
-  formHandling(req, res);
+  return formHandling(req, res);
 });
 
 // go from state 3 to state 1
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
-  res.cookie('email_validated', false);
-  res.cookie('pass_validated', false);
-  res.cookie('registration', false);
+  req.session.email_validated = false;
+  req.session.pass_validated = false;
+  req.session.registration = false;
   res.redirect(`http://localhost:8080/urls`);
 });
 
@@ -138,22 +136,22 @@ app.get("/urls/new", (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   
   if(
-    req.cookies.email_validated === 'true' && 
-    req.cookies.pass_validated  === 'true'){
+    req.session.email_validated === 'true' && 
+    req.session.pass_validated  === 'true'){
     res.redirect(`http://localhost:8080/urls/${shortURL}`);
   }
   else{ res.status(401).send('Please register and/or login to create short urls')}
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const cookie = req.cookies.userID;
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, cookie, users, userID, validated:false};
 
   // update templateVars with cookie values and change to boolean
-  templateVars.email_validated  = req.cookies.email_validated === 'true' ? true:false;
-  templateVars.pass_validated   = req.cookies.pass_validated === 'true' ? true:false;
-  templateVars.registration     = req.cookies.registration === 'true' ? true:false;
+  templateVars.email_validated = req.session.email_validated === 'true' ? true:false;
+  templateVars.pass_validated  = req.session.pass_validated === 'true' ? true:false;
+  templateVars.registration    = req.session.registration === 'true' ? true:false;
 
   if(!templateVars.email_validated || !templateVars.pass_validated || 
      templateVars.email_validated === false || templateVars.pass_validated === false){
@@ -184,11 +182,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL;
-  const email_validated = req.cookies.pass_validated === 'true' ? true:false;
-  const pass_validated =  req.cookies.email_validated === 'true' ? true:false;
+  const email_validated = req.session.pass_validated === 'true' ? true:false;
+  const pass_validated =  req.session.email_validated === 'true' ? true:false;
   const templateVars =
   {longURL, shortURL, email_validated, pass_validated, userID, users};
   urlDatabase[shortURL] ={ longURL, userID };
