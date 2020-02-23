@@ -15,7 +15,7 @@ const urlDatabase = {
   "9sm5xK":  { longURL: "http://www.google.com", userID: "user2RandomID" },
 };
 
-//add hashable passwords
+//added hashable passwords
 const hash1 = bcrypt.hashSync("example", 10)
 const hash2 = bcrypt.hashSync("abc", 10)
 
@@ -39,6 +39,17 @@ app.use(session({
   secret: 'secret key',
 }));
 
+const getUserByEmail = function(email, database) {
+  let user;
+  for(let id in database){
+    if(database[id].email === email){
+      user = database[id];
+      break;
+    }
+  }
+  return user;
+};
+
 // -- Routing -- 
 
 //redirect to urls and set default cookies
@@ -61,9 +72,7 @@ app.get("/urls", (req, res) => {
   let URL = {};
   if(userID !== null && email_validated === true && pass_validated === true){
     for(let url in urlDatabase){
-      console.log(URL[url], userID)
       if( urlDatabase[url].userID === userID ){
-        console.log('Added!')
         URL[url] = urlDatabase[url];
       }
     }
@@ -72,9 +81,6 @@ app.get("/urls", (req, res) => {
     email_validated, pass_validated, registration   
   };
 
-  console.log(URL)
-  
-  // console.log(templateVars.userID)
   res.render("urls_index", templateVars);
 });
 
@@ -104,7 +110,6 @@ app.post('/register', (req, res) => {
       email: req.body.email, 
       hash
     }
-    // console.log(users)
     req.session.user_id = randUserId;
     res.redirect('http://localhost:8080/urls');
   }
