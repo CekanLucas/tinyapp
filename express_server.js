@@ -4,6 +4,7 @@ const app = express();
 const bcrypt = require('bcrypt');
 const {generateRandomString} = require('./functions/generateRandomString');
 const {formHandling} = require('./functions/formHandling');
+const {getUserByEmail} = require('./functions/helpers');
 const PORT = 8080;
 
 app.set('view engine', 'ejs');
@@ -38,17 +39,6 @@ app.use(session({
   name: 'session',
   secret: 'secret key',
 }));
-
-const getUserByEmail = function(email, database) {
-  let user;
-  for(let id in database){
-    if(database[id].email === email){
-      user = database[id];
-      break;
-    }
-  }
-  return user;
-};
 
 // -- Routing -- 
 
