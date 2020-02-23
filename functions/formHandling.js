@@ -24,11 +24,10 @@ const formHandling = (request, response) => {
       }
     }
     response.status(401).send('Email is not registered');
-    response.redirect('http://localhost:8080/urls');
-    return;
   }
 
-  else if(email === 'true' && pass === 'false'){ //State 2: ask for password
+  //State 2: ask for password
+  else if(JSON.parse(email) === true && JSON.parse(pass) === false){
     const id = request.session.user_id;
     if (bcrypt.compareSync(request.body.loginPass, users[id].hash)){
       request.session.pass_validated = 'true';
