@@ -14,7 +14,7 @@
     
     <% if(email_validated === true && pass_validated === true){ %>
 
-      Logged in for:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
+      Logged in for:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;</span</b>
       <form 
       class='form-control form-control-lg form-inline' 
       action="/logout" method=POST id=LoginForm 

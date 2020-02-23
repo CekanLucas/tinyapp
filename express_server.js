@@ -46,13 +46,13 @@ app.get("/", (req, res) => {
   req.session.email_validated = 'false';
   req.session.pass_validated = 'false';
   req.session.registration = 'false';
-  res.user_id = null;
+  // req.user_id = null;
   res.redirect('http://localhost:8080/urls');
 })
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
-  // console.log(req.session.user_id)
+  console.log('usrID\t' + req.session.user_id);
   const userID = req.session.user_id;
   const email_validated= req.session.email_validated === 'true' ? true:false;
   const pass_validated = req.session.pass_validated === 'true' ? true:false;
@@ -60,15 +60,17 @@ app.get("/urls", (req, res) => {
 
   let URL = urlDatabase;
   for(let url in URL){
+    console.log(URL[url])
     if( URL[url].userID !== userID ){
+      console.log('DELETED!')
       delete URL[url];
     }
   }
-  // console.log(URL, users)
-  let templateVars = { urls:URL, userID, users, loginEmail:'', 
-    email_validated, pass_validated, registration   
+  const templateVars = { urls:URL, userID, users, loginEmail:'', 
+  email_validated, pass_validated, registration   
 };
 
+  console.log(templateVars.urls)
   
   // console.log(templateVars.userID)
   res.render("urls_index", templateVars);
@@ -100,7 +102,7 @@ app.post('/register', (req, res) => {
       email: req.body.email, 
       hash
     }
-    console.log(users)
+    // console.log(users)
     req.session.user_id = randUserId;
     res.redirect('http://localhost:8080/urls');
   }
@@ -127,6 +129,7 @@ app.post("/logout", (req, res) => {
   req.session.email_validated = false;
   req.session.pass_validated = false;
   req.session.registration = false;
+  req.session.user_id = null;
   res.redirect(`http://localhost:8080/urls`);
 });
 
@@ -145,8 +148,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
-  const cookie = req.cookies.userID;
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, cookie, users, userID, validated:false};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID, validated:false};
 
   // update templateVars with cookie values and change to boolean
   templateVars.email_validated = req.session.email_validated === 'true' ? true:false;
@@ -175,7 +177,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.cookies)
+  // console.log(req.cookies)
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`http://localhost:8080/urls`);
