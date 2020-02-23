@@ -52,25 +52,27 @@ app.get("/", (req, res) => {
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
-  console.log('usrID\t' + req.session.user_id);
   const userID = req.session.user_id;
   const email_validated= req.session.email_validated === 'true' ? true:false;
   const pass_validated = req.session.pass_validated === 'true' ? true:false;
   const registration   = req.session.registration === 'true' ? true:false;
-
-  let URL = urlDatabase;
-  for(let url in URL){
-    console.log(URL[url])
-    if( URL[url].userID !== userID ){
-      console.log('DELETED!')
-      delete URL[url];
+  
+  console.log('usrID\t' + req.session.user_id);
+  let URL = {};
+  if(userID !== null && email_validated === true && pass_validated === true){
+    for(let url in urlDatabase){
+      console.log(URL[url], userID)
+      if( urlDatabase[url].userID === userID ){
+        console.log('Added!')
+        URL[url] = urlDatabase[url];
+      }
     }
   }
-  const templateVars = { urls:URL, userID, users, loginEmail:'', 
-  email_validated, pass_validated, registration   
-};
+  let templateVars = { urls: URL, userID, users, loginEmail:'', 
+    email_validated, pass_validated, registration   
+  };
 
-  console.log(templateVars.urls)
+  console.log(URL)
   
   // console.log(templateVars.userID)
   res.render("urls_index", templateVars);
@@ -111,7 +113,7 @@ app.post('/register', (req, res) => {
 app.post("/login", (req, res)=> { 
   const loginEmail = req.body.loginEmail;
   const loginPass  = req.body.loginPass;
-
+  console.log('UserID', req.session.user_id)
   if(loginEmail === '' && loginPass === undefined){
     res.status(403).send('Please fill out email field');
     return;
@@ -120,12 +122,12 @@ app.post("/login", (req, res)=> {
     res.status(403).send('Please fill out password field');
     return;
   }
-  return formHandling(req, res);
+  formHandling(req, res);
+  console.log('UserID', req.session.user_id)
 });
 
 // go from state 3 to state 1
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
   req.session.email_validated = false;
   req.session.pass_validated = false;
   req.session.registration = false;
