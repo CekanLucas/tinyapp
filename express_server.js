@@ -54,15 +54,9 @@ app.get("/", (req, res) => {
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
-  // const email_validated= req.session.email_validated === 'true' ? true:false;
-  // const pass_validated = req.session.pass_validated === 'true' ? true:false;
-  // const registration   = req.session.registration === 'true' ? true:false;
   const email_validated= JSON.parse(req.session.email_validated);
   const pass_validated = JSON.parse(req.session.pass_validated);
   const registration   = JSON.parse(req.session.registration);
-  console.log('cookies',req.session.email_validated)
-  console.log(req.session)
-  // console.log('usrID\t' + req.session.user_id);
   let URL = {};
   if(userID !== null && email_validated === true && pass_validated === true){
     for(let url in urlDatabase){
@@ -71,7 +65,6 @@ app.get("/urls", (req, res) => {
       }
     }
   }
-  console.log(email_validated, pass_validated, userID)
   let templateVars = { urls: URL, userID, users, loginEmail:'', 
     email_validated, pass_validated, registration   
   };
@@ -86,14 +79,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
   console.log('registration handling')
-/*   for(id in users){
-    if(users[id].email === req.body.email) {
-      console.log('email already exists')
-      res.sendStatus(404);
-    }
-  } */
-  // console.log(users)
-  // console.log('Test',getUserByEmail(req.body.email, users), req.body.email)
+
   if(!req.body.email || !req.body.password){
     res.status(404).send('email or password field not filled ');
   }
@@ -120,7 +106,6 @@ app.post('/register', (req, res) => {
 app.post("/login", (req, res)=> { 
   const loginEmail = req.body.loginEmail;
   const loginPass  = req.body.loginPass;
-  console.log('UserID', req.session.user_id)
   if(loginEmail === '' && loginPass === undefined){
     res.status(403).send('Please fill out email field');
     return;
@@ -130,7 +115,6 @@ app.post("/login", (req, res)=> {
     return;
   }
   formHandling(req, res);
-  console.log('UserID', req.session.user_id)
 });
 
 // go from state 3 to state 1
