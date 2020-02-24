@@ -54,11 +54,15 @@ app.get("/", (req, res) => {
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
-  const email_validated= req.session.email_validated === 'true' ? true:false;
-  const pass_validated = req.session.pass_validated === 'true' ? true:false;
-  const registration   = req.session.registration === 'true' ? true:false;
-  
-  console.log('usrID\t' + req.session.user_id);
+  // const email_validated= req.session.email_validated === 'true' ? true:false;
+  // const pass_validated = req.session.pass_validated === 'true' ? true:false;
+  // const registration   = req.session.registration === 'true' ? true:false;
+  const email_validated= JSON.parse(req.session.email_validated);
+  const pass_validated = JSON.parse(req.session.pass_validated);
+  const registration   = JSON.parse(req.session.registration);
+  console.log('cookies',req.session.email_validated)
+  console.log(req.session)
+  // console.log('usrID\t' + req.session.user_id);
   let URL = {};
   if(userID !== null && email_validated === true && pass_validated === true){
     for(let url in urlDatabase){
@@ -67,6 +71,7 @@ app.get("/urls", (req, res) => {
       }
     }
   }
+  console.log(email_validated, pass_validated, userID)
   let templateVars = { urls: URL, userID, users, loginEmail:'', 
     email_validated, pass_validated, registration   
   };
@@ -81,18 +86,18 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
   console.log('registration handling')
-  for(id in users){
+/*   for(id in users){
     if(users[id].email === req.body.email) {
       console.log('email already exists')
       res.sendStatus(404);
     }
-  }
+  } */
+  // console.log(users)
+  // console.log('Test',getUserByEmail(req.body.email, users), req.body.email)
   if(!req.body.email || !req.body.password){
-    console.log('email or pass not filled ')
-    res.sendStatus(404);
-    res.redirect('http://localhost:8080/register');
+    res.status(404).send('email or password field not filled ');
   }
-  else{
+  else if (Boolean(getUserByEmail(req.body.email, users)) === false){
     const password = req.body.password;
     const hash = bcrypt.hashSync(password, 10);
     users[randUserId] = {
@@ -101,7 +106,14 @@ app.post('/register', (req, res) => {
       hash
     }
     req.session.user_id = randUserId;
+    req.session.email_validated = true;
+    req.session.pass_validated = true;
+    console.log(req.session)
+    console.log(urlDatabase)
     res.redirect('http://localhost:8080/urls');
+  }
+  else {
+    res.status(404).send('user already exists!');
   }
 })
 
@@ -138,8 +150,8 @@ app.get("/urls/new", (req, res) => {
   urlDatabase[shortURL] = {userID, longURL};
   
   if(
-    req.session.email_validated === 'true' && 
-    req.session.pass_validated  === 'true'){
+    req.session.email_validated === true && 
+    req.session.pass_validated  === true){
     res.redirect(`http://localhost:8080/urls/${shortURL}`);
   }
   else{ res.status(401).send('Please register and/or login to create short urls')}
