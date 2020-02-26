@@ -16,7 +16,7 @@ const urlDatabase = {
   "9sm5xK":  { longURL: "http://www.google.com", userID: "user2RandomID" },
 };
 
-//added hashable passwords
+//added hashable passwords to example users
 const hash1 = bcrypt.hashSync("example", 10)
 const hash2 = bcrypt.hashSync("abc", 10)
 
@@ -76,9 +76,9 @@ app.get('/register', (req, res) => {
   res.render('urls_form',users);
 })
 
+// registration handling
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
-  console.log('registration handling')
 
   if(!req.body.email || !req.body.password){
     res.status(404).send('email or password field not filled ');
@@ -126,17 +126,17 @@ app.post("/logout", (req, res) => {
   res.redirect(`http://localhost:8080/urls`);
 });
 
-// when you click urls new in header
+// when you click urls new in header create new url
 app.get("/urls/new", (req, res) => {
   const shortURL = generateRandomString();
   const userID = req.session.user_id;
   const longURL = req.body.longURL
   urlDatabase[shortURL] = {userID, longURL};
-  
   if(
-    req.session.email_validated === true && 
-    req.session.pass_validated  === true){
+    JSON.parse(req.session.email_validated) === true && 
+    JSON.parse(req.session.pass_validated)  === true){
     res.redirect(`http://localhost:8080/urls/${shortURL}`);
+    return;
   }
   else{ res.status(401).send('Please register and/or login to create short urls')}
 });
@@ -152,13 +152,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
   if(!templateVars.email_validated || !templateVars.pass_validated || 
      templateVars.email_validated === false || templateVars.pass_validated === false){
-    console.log('non logged in users cant exit');
     res.send(401, 'Only logged in users can edit');
     res.redirect('/urls');
     return;
   }
-  // logged in user not found
-  // console.log('TESTING ',templateVars.email_validated, users[userID], users)
   res.render("urls_show", templateVars);
 });
 
@@ -166,18 +163,18 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   let longURL =  urlDatabase[req.params.shortURL].longURL;
   if(!longURL){
-    res.send(404,'Short URL does not lead to a site\n')
+    res.status(404).send('Short URL does not lead to a site\n');
   }
   res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.cookies)
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`http://localhost:8080/urls`);
 });
 
+// render the url_show
 app.post("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL
@@ -190,6 +187,7 @@ app.post("/urls/:shortURL", (req, res) => {
   res.render("urls_show",templateVars)
 });
 
+// delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
   delete urlDatabase[shortURL];
