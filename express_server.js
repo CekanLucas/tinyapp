@@ -92,10 +92,8 @@ app.post('/register', (req, res) => {
       hash
     }
     req.session.user_id = randUserId;
-    req.session.email_validated = true;
-    req.session.pass_validated = true;
-    console.log(req.session)
-    console.log(urlDatabase)
+    req.session.email_validated = 'true';
+    req.session.pass_validated = 'true';
     res.redirect('http://localhost:8080/urls');
   }
   else {
