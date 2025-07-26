@@ -1,3 +1,4 @@
+require('dotenv').config();
 const session = require('cookie-session');
 const express = require("express");
 const app = express();
