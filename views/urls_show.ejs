@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <title>URL - TinyApp Example</title>
-  </head>
-  <body>
-    <%- include('./partials/_header') %>
-  <div class="card text-center">
+
+<head>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>URL - TinyApp Example</title>
+</head>
+
+<body>
+  <%- include('./partials/_header') %>
+    <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: 
-          <b><span class="text-info"><%= longURL %></span></b>
-          </h5>
-        <p class="card-text">Short URL: <a href=<%= longURL %>><%= shortURL %></a></p>
+        <h5 class="card-title">TinyURL for:
+          <b><span class="text-info">
+              <%= longURL %>
+            </span></b>
+        </h5>
+        <p class="card-text">Short URL: <a target="_blank" rel="noopener noreferrer" href=<%=longURL %>><%= shortURL %></a></p>
       </div>
-    <div class="card-footer text-muted"></div>
-  </div>
+      <div class="card-footer text-muted"></div>
+    </div>
 
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
         <h2 class="card-title">EDIT</h2>
         <p>
-          <form 
-            class='form-control form-control-lg' 
-            action="/urls/<%= shortURL %>" 
-            method=POST  
-            style="border:none"
-            name=longURL> 
-            <div class="input-group-text">
-              <span class="input-group-text">
-                <span class="text-info">
-                  New URL: 
-                </span>
-                 </span>
-              <input class=form-control name=longURL type="text" 
-              value=<%= longURL || 'http://' %>  > 
-              <button class='btn btn-info'>Submit</button>
-            </div>
-          </form>
+        <form class='form-control form-control-lg' action="/urls/<%= shortURL %>" method=POST style="border:none"
+          name=longURL>
+          <div class="input-group-text">
+            <span class="input-group-text">
+              <span class="text-info">
+                New URL:
+              </span>
+            </span>
+            <input class=form-control name=longURL type="text" value=<%=longURL || 'http://' %> >
+            <button class='btn btn-info'>Submit</button>
+          </div>
+        </form>
         </p>
-        <p>For Short URL: <b><%= shortURL %></b></p>
+        <p>For Short URL: <b>
+            <%= shortURL %>
+          </b></p>
 
       </div>
-    <div class="card-footer text-muted"></div>
-  </div>
+      <div class="card-footer text-muted"></div>
+    </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"></script>
 </body>
+
 </html>

@@ -1,7 +1,8 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -11,54 +12,45 @@
       </div>
     </div>
 
-    
-    <% if(email_validated === true && pass_validated === true){ %>
+    <% if(email_validated===true && pass_validated===true){ %>
 
-      Logged in for:&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;</span</b>
-      <form 
-      class='form-control form-control-lg form-inline' 
-      action="/logout" method=POST id=LoginForm 
-      style="display:contents !important" name=usernameform> 
-        <button class='btn btn-warning'>Logout</button>
-    </form>
+      Logged in for:&nbsp;<b><span class=text-light>
+          <%= users[userID].email %>&nbsp;&nbsp;</span< /b>
+            <form class='form-control form-control-lg form-inline' action="/logout" method=POST id=LoginForm
+              style="display:contents !important" name=usernameform>
+              <button class='btn btn-warning'>Logout</button>
+            </form>
 
-    <% } else if(email_validated === false && pass_validated === false){ %>
+            <% } else if(email_validated===false && pass_validated===false){ %>
 
-     Enter Email:&nbsp;<b><span class=text-light>&nbsp;&nbsp;&nbsp;</span</b>
-      <form 
-      class='form-control form-control-lg form-inline' 
-      action="/login" method=POST id=LoginForm 
-      style="display:contents !important" name=usernameform> 
-        <input class=form-control name=loginEmail type="email" placeholder="example@email.com"> 
-        <button class='btn btn-warning'>Login</button>
-    </form>
-    <form 
-      class='form-control form-control-lg form-inline' 
-      action="/register" method=GET id=LoginForm 
-      style="display:contents !important" name=usernameform> 
-        <button class='btn btn-warning'>Register</button>
-    </form>
+              Enter Email:&nbsp;<b><span class=text-light>&nbsp;&nbsp;&nbsp;</span< /b>
+                  <form class='form-control form-control-lg form-inline' action="/login" method=POST id=LoginForm
+                    style="display:contents !important" name=usernameform>
+                    <input class=form-control name=loginEmail type="email" placeholder="example@email.com">
+                    <button class='btn btn-warning'>Login</button>
+                  </form>
+                  <form class='form-control form-control-lg form-inline' action="/register" method=GET id=LoginForm
+                    style="display:contents !important" name=usernameform>
+                    <button class='btn btn-warning'>Register</button>
+                  </form>
 
 
-    <% } else{ %>  
+                  <% } else{ %>
 
-      Enter Password for&nbsp;<b><span class=text-light><%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span</b>
-      <form 
-      class='form-control form-control-lg form-inline' 
-      action="/login" method=POST id=LoginForm 
-      style="display:contents !important" name=usernameform> 
-        <input class=form-control name=loginPass type="password" placeholder="enter password"> 
-        <button class='btn btn-warning'>Login</button>
-      </form>
-      <form 
-      class='form-control form-control-lg form-inline' 
-      action="/logout" method=POST
-      style="display:contents !important" name=backform> 
-      <button class='btn btn-warning'>Back</button>
-      </form>
-    
+                    Enter Password for&nbsp;<b><span class=text-light>
+                        <%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span< /b>
+                          <form class='form-control form-control-lg form-inline' action="/login" method=POST
+                            id=LoginForm style="display:contents !important" name=usernameform>
+                            <input class=form-control name=loginPass type="password" placeholder="enter password">
+                            <button class='btn btn-warning'>Login</button>
+                          </form>
+                          <form class='form-control form-control-lg form-inline' action="/logout" method=POST
+                            style="display:contents !important" name=backform>
+                            <button class='btn btn-warning'>Back</button>
+                          </form>
 
-   <% } %>
+
+                          <% } %>
 
   </nav>
 </header>

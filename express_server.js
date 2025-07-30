@@ -3,12 +3,12 @@ const session = require('cookie-session');
 const express = require("express");
 const app = express();
 const bcrypt = require('bcrypt');
-const {generateRandomString} = require('./functions/generateRandomString');
-const {formHandling} = require('./functions/formHandling');
-const {getUserByEmail} = require('./functions/helpers');
+const { generateRandomString } = require('./functions/generateRandomString');
+const { formHandling } = require('./functions/formHandling');
+const { getUserByEmail } = require('./functions/helpers');
 
 const PORT = process.env.PORT || 8080;
-const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
+const APP_URL = process.env.APP_URL + ':' + PORT || `http://localhost:${PORT}`;
 
 
 app.set('view engine', 'ejs');
@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 const { urlDatabase, users } = require('./database');
 
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   name: 'session',
   secret: 'secret key',
@@ -29,7 +29,6 @@ app.get("/", (req, res) => {
   req.session.email_validated = 'false';
   req.session.pass_validated = 'false';
   req.session.registration = 'false';
-  // req.user_id = null;
   res.redirect(APP_URL + '/urls');
 })
 
@@ -40,37 +39,38 @@ app.get("/urls", (req, res) => {
   const pass_validated = req.session.pass_validated === 'true';
   const registration = req.session.registration === 'true';
   let URL = {};
-  if(userID !== null && email_validated === true && pass_validated === true){
-    for(let url in urlDatabase){
-      if( urlDatabase[url].userID === userID ){
+  if (userID && email_validated && pass_validated) {
+    for (let url in urlDatabase) {
+      if (urlDatabase[url].userID === userID) {
         URL[url] = urlDatabase[url];
       }
     }
   }
-  let templateVars = { urls: URL, userID, users, loginEmail:'', 
-    email_validated, pass_validated, registration   
+  let templateVars = {
+    urls: URL, userID, users, loginEmail: '',
+    email_validated, pass_validated, registration
   };
 
   res.render("urls_index", templateVars);
 });
 
 app.get('/register', (req, res) => {
-  res.render('urls_form',users);
+  res.render('urls_form', users);
 })
 
 // registration handling
 app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
 
-  if(!req.body.email || !req.body.password){
+  if (!req.body.email || !req.body.password) {
     res.status(404).send('email or password field not filled ');
   }
-  else if (Boolean(getUserByEmail(req.body.email, users)) === false){
+  else if (!getUserByEmail(req.body.email, users)) {
     const password = req.body.password;
     const hash = bcrypt.hashSync(password, 10);
     users[randUserId] = {
       id: randUserId,
-      email: req.body.email, 
+      email: req.body.email,
       hash
     }
     req.session.user_id = randUserId;
@@ -83,18 +83,18 @@ app.post('/register', (req, res) => {
   }
 })
 
-app.post("/login", (req, res)=> { 
+app.post("/login", (req, res) => {
   const loginEmail = req.body.loginEmail;
-  const loginPass  = req.body.loginPass;
-  if(loginEmail === '' && loginPass === undefined){
+  const loginPass = req.body.loginPass;
+  if (loginEmail === '' && loginPass === undefined) {
     res.status(403).send('Please fill out email field');
     return;
   }
-  if(loginEmail === undefined && loginPass === ''){
+  if (loginEmail === undefined && loginPass === '') {
     res.status(403).send('Please fill out password field');
     return;
   }
-  formHandling(req, res, users, APP_URL);
+  formHandling(req, res, users);
 });
 
 // go from state 3 to state 1
@@ -111,23 +111,23 @@ app.get("/urls/new", (req, res) => {
   const shortURL = generateRandomString();
   const userID = req.session.user_id;
   const longURL = req.body.longURL
-  urlDatabase[shortURL] = {userID, longURL};
-  if(req.session.email_validated === 'true' && req.session.pass_validated === 'true'){
+  urlDatabase[shortURL] = { userID, longURL };
+  if (req.session.email_validated === 'true' && req.session.pass_validated === 'true') {
     res.redirect(`${APP_URL}/urls/${shortURL}`);
   }
-  else{ res.status(401).send('Please register and/or login to create short urls')}
+  else { res.status(401).send('Please register and/or login to create short urls') }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID, validated:false};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID, validated: false };
 
   // update templateVars with cookie values and change to boolean
   templateVars.email_validated = req.session.email_validated === 'true';
-  templateVars.pass_validated  = req.session.pass_validated === 'true';
-  templateVars.registration    = req.session.registration === 'true';
+  templateVars.pass_validated = req.session.pass_validated === 'true';
+  templateVars.registration = req.session.registration === 'true';
 
-  if(!templateVars.email_validated || !templateVars.pass_validated){
+  if (!templateVars.email_validated || !templateVars.pass_validated) {
     res.send(401, 'Only logged in users can edit');
     res.redirect('/urls');
     return;
@@ -135,10 +135,10 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// redirect to longurl when you click short url
+// redirect to longURL when you click short url
 app.get("/u/:shortURL", (req, res) => {
-  let longURL =  urlDatabase[req.params.shortURL].longURL;
-  if(!longURL){
+  let longURL = urlDatabase[req.params.shortURL].longURL;
+  if (!longURL) {
     res.status(404).send('Short URL does not lead to a site\n');
   }
   res.redirect(longURL);
@@ -155,12 +155,12 @@ app.post("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL;
-  const email_validated = req.session.pass_validated === 'true' ? true:false;
-  const pass_validated =  req.session.email_validated === 'true' ? true:false;
+  const email_validated = req.session.pass_validated;
+  const pass_validated = req.session.email_validated;
   const templateVars =
-  {longURL, shortURL, email_validated, pass_validated, userID, users};
-  urlDatabase[shortURL] ={ longURL, userID };
-  res.render("urls_show",templateVars)
+    { longURL, shortURL, email_validated, pass_validated, userID, users };
+  urlDatabase[shortURL] = { longURL, userID };
+  res.render("urls_show", templateVars)
 });
 
 // delete url
@@ -171,6 +171,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`tinyapp listening on port ${PORT}!`);
+  console.log(`Tiny App listening on port ${PORT}!`);
 });
 
