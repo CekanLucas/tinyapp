@@ -24,3 +24,11 @@ This app was refactored to be more in line as a **single page application (SPA)*
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node express_server.js` command.
+
+## Description
+
+This is a fully functional web-server and API
+
+Works like other URL shortening services [TinyURL](http://tinyurl.com/), [Bitly](https://bitly.com/) or [Goo.gl](https://goo.gl/)
+
+[Short Wikipedia Article about URL shortening](https://en.wikipedia.org/wiki/URL_shortening#Techniques)

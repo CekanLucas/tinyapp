@@ -6,33 +6,14 @@ const bcrypt = require('bcrypt');
 const {generateRandomString} = require('./functions/generateRandomString');
 const {formHandling} = require('./functions/formHandling');
 const {getUserByEmail} = require('./functions/helpers');
-const PORT = 8080;
+
+const PORT = process.env.PORT || 8080;
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
+
 
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" },
-  b2xVn2:  { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
-  "9sm5xK":  { longURL: "http://www.google.com", userID: "user2RandomID" },
-};
-
-//added hashable passwords to example users
-const hash1 = bcrypt.hashSync("example", 10)
-const hash2 = bcrypt.hashSync("abc", 10)
-
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    hash: hash1
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    hash: hash2
-  }
-}
+const { urlDatabase, users } = require('./database');
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
@@ -49,15 +30,15 @@ app.get("/", (req, res) => {
   req.session.pass_validated = 'false';
   req.session.registration = 'false';
   // req.user_id = null;
-  res.redirect('http://localhost:8080/urls');
+  res.redirect(APP_URL + '/urls');
 })
 
 // render templateVars to urls_index
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
-  const email_validated= JSON.parse(req.session.email_validated);
-  const pass_validated = JSON.parse(req.session.pass_validated);
-  const registration   = JSON.parse(req.session.registration);
+  const email_validated = req.session.email_validated === 'true';
+  const pass_validated = req.session.pass_validated === 'true';
+  const registration = req.session.registration === 'true';
   let URL = {};
   if(userID !== null && email_validated === true && pass_validated === true){
     for(let url in urlDatabase){
@@ -95,7 +76,7 @@ app.post('/register', (req, res) => {
     req.session.user_id = randUserId;
     req.session.email_validated = 'true';
     req.session.pass_validated = 'true';
-    res.redirect('http://localhost:8080/urls');
+    res.redirect(APP_URL + '/urls');
   }
   else {
     res.status(404).send('user already exists!');
@@ -113,16 +94,16 @@ app.post("/login", (req, res)=> {
     res.status(403).send('Please fill out password field');
     return;
   }
-  formHandling(req, res);
+  formHandling(req, res, users, APP_URL);
 });
 
 // go from state 3 to state 1
 app.post("/logout", (req, res) => {
-  req.session.email_validated = false;
-  req.session.pass_validated = false;
-  req.session.registration = false;
+  req.session.email_validated = 'false';
+  req.session.pass_validated = 'false';
+  req.session.registration = 'false';
   req.session.user_id = null;
-  res.redirect(`http://localhost:8080/urls`);
+  res.redirect(`${APP_URL}/urls`);
 });
 
 // when you click urls new in header create new url
@@ -131,11 +112,8 @@ app.get("/urls/new", (req, res) => {
   const userID = req.session.user_id;
   const longURL = req.body.longURL
   urlDatabase[shortURL] = {userID, longURL};
-  if(
-    JSON.parse(req.session.email_validated) === true && 
-    JSON.parse(req.session.pass_validated)  === true){
-    res.redirect(`http://localhost:8080/urls/${shortURL}`);
-    return;
+  if(req.session.email_validated === 'true' && req.session.pass_validated === 'true'){
+    res.redirect(`${APP_URL}/urls/${shortURL}`);
   }
   else{ res.status(401).send('Please register and/or login to create short urls')}
 });
@@ -145,12 +123,11 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID, validated:false};
 
   // update templateVars with cookie values and change to boolean
-  templateVars.email_validated = req.session.email_validated === 'true' ? true:false;
-  templateVars.pass_validated  = req.session.pass_validated === 'true' ? true:false;
-  templateVars.registration    = req.session.registration === 'true' ? true:false;
+  templateVars.email_validated = req.session.email_validated === 'true';
+  templateVars.pass_validated  = req.session.pass_validated === 'true';
+  templateVars.registration    = req.session.registration === 'true';
 
-  if(!templateVars.email_validated || !templateVars.pass_validated || 
-     templateVars.email_validated === false || templateVars.pass_validated === false){
+  if(!templateVars.email_validated || !templateVars.pass_validated){
     res.send(401, 'Only logged in users can edit');
     res.redirect('/urls');
     return;
@@ -170,7 +147,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`http://localhost:8080/urls`);
+  res.redirect(`${APP_URL}/urls`);
 });
 
 // render the url_show
@@ -190,14 +167,10 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
   delete urlDatabase[shortURL];
-  res.redirect(`http://localhost:8080/urls`);
+  res.redirect(`${APP_URL}/urls`);
 });
 
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}!`);
+  console.log(`tinyapp listening on port ${PORT}!`);
 });
 
-module.exports = {
-  users,
-  urlDatabase
-}

@@ -1,7 +1,7 @@
 
-const formHandling = (request, response) => {
-  const {users, urlDatabase} = require('../express_server');
-  const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
+
+const formHandling = (request, response, users, APP_URL) => {
   // console.log('users: '+users);
   // 2 paths login and registration 
   // State 1: input: email button1: login  button2: register
@@ -9,17 +9,16 @@ const formHandling = (request, response) => {
   // State 3: input: none  button1: logout button2: none
 
   //using cookie value to determine state
-  const email    = request.session.email_validated;
-  const pass     = request.session.pass_validated;
-  const register = request.session.registration;
+  const email    = request.session.email_validated === 'true';
+  const pass     = request.session.pass_validated === 'true';
   
   //State 1: ask for email
-  if(JSON.parse(email) === false && JSON.parse(pass) === false){ 
+  if(email === false && pass === false){ 
     for(id in users){
       if (request.body.loginEmail === users[id].email){
         request.session.user_id = id;
         request.session.email_validated = 'true';
-        response.redirect('http://localhost:8080/urls')
+        response.redirect(`${APP_URL}/urls`);
         return;
       }
     }
@@ -27,14 +26,14 @@ const formHandling = (request, response) => {
   }
 
   //State 2: ask for password
-  else if(JSON.parse(email) === true && JSON.parse(pass) === false){
+  else if(email === true && pass === false){
     const id = request.session.user_id;
     if (bcrypt.compareSync(request.body.loginPass, users[id].hash)){
       request.session.pass_validated = 'true';
-      response.redirect('http://localhost:8080/urls')
+      response.redirect(`${APP_URL}/urls`)
     }
     else{response.status(401).send('invalid password')};
-  } else{response.redirect('http://localhost:8080/urls')}
+  } else{response.redirect(`${APP_URL}/urls`)}
 }
 
 module.exports = {
