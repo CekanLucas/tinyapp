@@ -4,7 +4,7 @@
 
 ## Live Demo
 
-[Running Application](http://172.105.109.193:8080/)
+[Running Application](https://tinyapp.lucascekan.com)
 
 
 This app was refactored to be more in line as a **single page application (SPA)** the new url and login pages are not neccessary for my app. SPA are better for user experience and design, they reduce clicks and reduce rendering and they present a better architecture of the site. A stretch goal is to complete this proccess.

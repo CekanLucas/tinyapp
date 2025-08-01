@@ -9,7 +9,7 @@ const { formHandling } = require('./functions/formHandling');
 const { getUserByEmail } = require('./functions/helpers');
 
 const PORT = process.env.PORT || 8080;
-const APP_URL = process.env.APP_URL + ':' + PORT || `http://localhost:${PORT}`;
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
 
 
 app.set('view engine', 'ejs');
