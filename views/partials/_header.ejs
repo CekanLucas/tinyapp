@@ -14,12 +14,14 @@
 
     <% if(email_validated===true && pass_validated===true){ %>
 
+      <% if(userID) { %>
       Logged in for:&nbsp;<b><span class=text-light>
           <%= users[userID].email %>&nbsp;&nbsp;</span< /b>
             <form class='form-control form-control-lg form-inline' action="/logout" method=POST id=LoginForm
               style="display:contents !important" name=usernameform>
               <button class='btn btn-warning'>Logout</button>
             </form>
+      <% } %>
 
             <% } else if(email_validated===false && pass_validated===false){ %>
 
@@ -37,6 +39,7 @@
 
                   <% } else{ %>
 
+                    <% if(userID) { %>
                     Enter Password for&nbsp;<b><span class=text-light>
                         <%= users[userID].email %>&nbsp;&nbsp;&nbsp;</span< /b>
                           <form class='form-control form-control-lg form-inline' action="/login" method=POST
@@ -48,6 +51,7 @@
                             style="display:contents !important" name=backform>
                             <button class='btn btn-warning'>Back</button>
                           </form>
+                    <% } %>
 
 
                           <% } %>

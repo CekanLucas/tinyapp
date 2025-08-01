@@ -2,6 +2,11 @@
 
 >TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
+## Live Demo
+
+[Running Application](http://172.105.109.193:8080/)
+
+
 This app was refactored to be more in line as a **single page application (SPA)** the new url and login pages are not neccessary for my app. SPA are better for user experience and design, they reduce clicks and reduce rendering and they present a better architecture of the site. A stretch goal is to complete this proccess.
 
 ## Key Features
@@ -9,6 +14,7 @@ This app was refactored to be more in line as a **single page application (SPA)*
 *   **Seamless In-Header Authentication:** Register and log in directly from the navigation bar without ever leaving the main page. The multi-step process provides a smooth, SPA-like user experience. User sessions are secured using `cookie-session` and passwords are encrypted with `bcrypt`.
 *   **Dynamic URL Management:** Authenticated users can create, view, edit, and delete their own shortened URLs. The main dashboard only displays the URLs that belong to the logged-in user.
 *   **Functional Redirect Endpoint:** Test the core functionality by clicking any generated short link. This will open the original destination URL in a new tab. The link itself points to a dedicated endpoint on the app (e.g., `/u/b6UTxQ`), proving that the application is handling the redirection logic.
+*   **Follows REST principles** Using `method-override` package so that we use `PUT` and `Delete` methods to more closely align with REpresentional Transfer or REST architectural style.
 
 ## Final Product
 

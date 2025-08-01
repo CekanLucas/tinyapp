@@ -1,4 +1,5 @@
 require('dotenv').config();
+const methodOverride = require('method-override');
 const session = require('cookie-session');
 const express = require("express");
 const app = express();
@@ -17,6 +18,7 @@ const { urlDatabase, users } = require('./database');
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(methodOverride('_method'));
 app.use(session({
   name: 'session',
   secret: 'secret key',
@@ -63,7 +65,7 @@ app.post('/register', (req, res) => {
   const randUserId = `${generateRandomString()}${generateRandomString()}`;
 
   if (!req.body.email || !req.body.password) {
-    res.status(404).send('email or password field not filled ');
+    res.status(400).send('email or password field not filled ');
   }
   else if (!getUserByEmail(req.body.email, users)) {
     const password = req.body.password;
@@ -79,7 +81,7 @@ app.post('/register', (req, res) => {
     res.redirect(APP_URL + '/urls');
   }
   else {
-    res.status(404).send('user already exists!');
+    res.status(400).send('user already exists!');
   }
 })
 
@@ -128,7 +130,6 @@ app.get("/urls/:shortURL", (req, res) => {
   templateVars.registration = req.session.registration === 'true';
 
   if (!templateVars.email_validated || !templateVars.pass_validated) {
-    res.send(401, 'Only logged in users can edit');
     res.redirect('/urls');
     return;
   }
@@ -151,7 +152,7 @@ app.post("/urls", (req, res) => {
 });
 
 // render the url_show
-app.post("/urls/:shortURL", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL;
@@ -164,7 +165,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 // delete url
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   delete urlDatabase[shortURL];
   res.redirect(`${APP_URL}/urls`);
